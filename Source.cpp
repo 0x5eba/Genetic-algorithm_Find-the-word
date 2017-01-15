@@ -9,7 +9,6 @@
 using namespace std;
 
 #define N 100
-//#define N 10
 #define Max_length 20
 
 int tentativi = 0;
@@ -20,10 +19,10 @@ int main()
 	clock_t start;
 	start = clock();
 	srand(time(nullptr));
-	//population , create a initial population and assign them a random value ( the DNA )
-	//every value is a random word and so is a matrice
+	/*population , create a initial population and assign them a random value ( the DNA )
+	  every value is a random word and so is a matrice*/
 	
-	char word_to_find[Max_length] = { "PlOx" };
+	char word_to_find[Max_length] = { "TesT" };
 	cout << "\tWord to find: " << word_to_find << "\n\n";
 	int length_word = 0;
 	for (int a = 0; a < Max_length; a++)
@@ -47,10 +46,8 @@ int main()
 				b--;
 				continue;
 			}
-			//cout << population[a][b] << " ";
 		}		
 		trovato(population, length_word, word_to_find, a, start);
-		//cout << endl;
 	}
 
 	while (true)
@@ -85,30 +82,6 @@ int main()
 					}
 				}	
 			}
-			/*if (fitness[a] >= 1)
-			{
-				for (int b = 0, d = 0; b < length_word; b++)
-				{
-					word_correct[a][b] = population[a][b];
-					d++;
-					if (d == length_word)
-					{
-						d = 0;
-						c += 1;
-					}
-					//cout << word_correct[a][b] << " ";
-					for (int c = 0; c < length_word; c++)
-					{
-						if (word_correct[a][c] == word_to_find[b])
-						{
-							fitness2[a]++;
-							somma += 1;
-						}
-					}
-				}
-				//cout << endl;
-			}
-			trovato(word_correct, length_word, word_to_find, c, start);*/
 		}
 		char word_correct2[N][N] = { 0 };
 		for (int a = 0, c = 0; a < N; a++)
@@ -136,7 +109,6 @@ int main()
 				for (int b = 0; b < length_word; b++)
 				{
 					word_correct[a][b] = population[a][b];
-					//cout << word_correct[a][b] << " ";
 					for (int c = 0; c < length_word; c++)
 					{
 						if (word_correct[a][b] == word_to_find[c])
@@ -146,33 +118,8 @@ int main()
 						}	
 					}
 				}
-				//cout << endl;
 			}
 		}
-		//calcolo il fitness di nuovo , in base al numero del fitness lo metto tante volte quante il numero dentro un array
-		/*int fitness2[N] = { 0 };
-		int somma = 0;
-		for (int a = 0; a < N; a++)
-		{
-			for (int b = 0; b < length_word; b++)
-			{
-				for (int c = 0; c < length_word; c++)
-				{
-					if (population[a][b] == word_to_find[c])
-					{
-						fitness2[a]++;
-						somma += 1;
-					}
-				}
-			}
-		}*/
-		/*cout << "\n\n\n\n\n\n";
-		for (int a = 0; a < N; a++)
-		{
-			cout << fitness2[a] <<" ";
-		}
-		cout << "\n\n\n\n\n\n";*/
-
 		/*ruota della fortuna che ha N elementi ogniuno con un proprio valore, e ogni elemento ha la sua probabilità con la sua percentuale di essere preso , e la percentuale aumenta più è grande il numero al suo interno
 
 		posso aggiungere più elementi in base al numero in proporzione al length
@@ -190,22 +137,10 @@ int main()
 		mutation : after the crossover if i insert the 1% mutation this mean that i have
 		1% of probability to change a letter in a word with a new one
 		*/
-
-		for (int a = 0; a < N; a++)
-		{
-			for (int b = 0; b < length_word; b++)
-			{
-				//cout << word_correct2[a][b] << " ";
-			}
-			//cout << endl;
-		}
-		//cout << "\n\n";
-		//int numero_random = 0;
 		for (int a = 0; a < somma; a++)
 		{
 			for (int b = 0; b < length_word; b++)
 			{
-				//numero_random = rand() % length_word;
 				if (b <= length_word / 2)
 				{
 					population[a][b] = word_correct[a][b];
@@ -219,46 +154,16 @@ int main()
 						continue;
 					}
 				}
-				//cout << population[a][b] << " ";
-			}
-			//cout << endl;
-			trovato(population, length_word, word_to_find, a, start);
-			//cout << endl;
-		}
-
-		/*for (int a = 0; a < somma; a++)
-		{
-		for (int b = 0; b < length_word; b++)
-		{
-		cout << population[a][b] << " ";
-		}
-		cout << endl;
-		}*/
-		
-		//numero_random = 0;
-		/*for (int a = somma; a < N; a++)
-		{
-			for (int b = 0; b < length_word; b++)
-			{
-				//numero_random = rand() % length_word;
-				population[a][b] = (rand() % 58) + 65;
-				if (!isalpha(population[a][b]))
-				{
-					b--;
-					continue;
-				}
-				//cout << population[a][b] << " ";
 			}
 			trovato(population, length_word, word_to_find, a, start);
-			//cout << endl;
-		}*/
+		}
 		int numero_random = 0;
 		for (int a = 0; a < N; a++)
 		{
 			numero_random = rand() % 2;
 			if (numero_random == 0)
 			{
-				for (int b = 0; b < length_word / 2; b++)
+				for (int b = 0; b < length_word; b++)
 				{
 					if (b <= (length_word / 2))
 					{
@@ -274,7 +179,7 @@ int main()
 			}
 			if (numero_random == 1)
 			{
-				for (int b = 0; b < length_word / 2; b++)
+				for (int b = 0; b < length_word; b++)
 				{
 					if (b >(length_word / 2))
 					{
