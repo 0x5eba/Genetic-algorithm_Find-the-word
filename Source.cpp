@@ -137,26 +137,6 @@ int main()
 		mutation : after the crossover if i insert the 1% mutation this mean that i have
 		1% of probability to change a letter in a word with a new one
 		*/
-		for (int a = 0; a < somma; a++)
-		{
-			for (int b = 0; b < length_word; b++)
-			{
-				if (b <= length_word / 2)
-				{
-					population[a][b] = word_correct[a][b];
-				}
-				else
-				{
-					population[a][b] = (rand() % 58) + 65;
-					if (!isalpha(population[a][b]))
-					{
-						b--;
-						continue;
-					}
-				}
-			}
-			trovato(population, length_word, word_to_find, a, start);
-		}
 		int numero_random = 0;
 		for (int a = 0; a < N; a++)
 		{
