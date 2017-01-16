@@ -10,20 +10,24 @@ using namespace std;
 
 #define N 100
 #define Max_length 20
+#define Mutation 10
+#define nFitness 0
 
 int tentativi = 0;
-int trovato(char population[N][N],int length_word, char word_to_find[Max_length], int a, clock_t start);
+int finito = 0;
+clock_t start;
+int trovato(char population[N][N],int length_word, char word_to_find[Max_length], int a);
 
 int main()
 {
-	clock_t start;
 	start = clock();
 	srand(time(nullptr));
-	/*population , create a initial population and assign them a random value ( the DNA )
-	  every value is a random word and so is a matrice*/
 	
-	char word_to_find[Max_length] = { "TesT" };
-	cout << "\tWord to find: " << word_to_find << "\n\n";
+	char word_to_find[Max_length] = { "Test" };
+	cout << "\tWord to find: " << word_to_find << "\n";
+	cout << "\nPopulation: " << N << "\n";
+	cout << "Mutation: " << Mutation << "%\n";
+	cout << "\n(More letters , more waiting)\n\n";
 	int length_word = 0;
 	for (int a = 0; a < Max_length; a++)
 	{
@@ -34,7 +38,6 @@ int main()
 	}
 
 	char population[N][N] = { 0 };
-	//da 65 a 122 dalla A alla z
 	for (int a = 0; a < N; a++)
 	{
 		for (int b = 0; b < length_word; b++)
@@ -47,29 +50,24 @@ int main()
 				continue;
 			}
 		}		
-		trovato(population, length_word, word_to_find, a, start);
+		trovato(population, length_word, word_to_find, a);
+		if (finito == 1) { system("pause"); return 0; }
 	}
 
-	while (true)
+	int fitness[N] = { 0 };
+	char word_correct[N][N] = { 0 };
+	char word_correct2[N][N] = { 0 };
+	int somma = 0; 
+	while (finito == 0)
 	{
-		//fitness , this increase when one of the population find a correct word 
-		//   ( this is real important but wrong right now )
-		/*
-		ho la parola "unicorn" da trovare
-		creare una ruota della fortuna con delle percentuali delle frasi in base al fitness
-		io ho le parole:  unijorm , pancake , blablah , popcorn
-		unijorm ha in comune 5 lettere , quindi fitness 5 ( 50% ), lo metto 5 volte
-		popcorn ha in comune 4 lettere , quindi fitness 4 ( 40% ), lo metto 4 volte
-		pancake ha in comune 1 lettere , quindi fitness 1 ( 10% ), lo metto 1 volta
-		blablah ha in comune 0 lettere , quindi fitness 0 ( 0% ), non lo metto
-		ora prendo un valore random tra 1 e 10 e vedo cosa viene
-		*/
-		//la proporzione si fa su la lunghezza della parola e il numero della popolazione
-		int fitness[N] = { 0 };
-		char word_correct[N][N] = { 0 };
-		int fitness2[N] = { 0 };
-		int somma = 0;
-		for (int a = 0, c = 0; a < N; a++)
+		somma = 0;
+	
+		//FITNESS
+		for (int a = 0; a < N; a++)
+		{
+			fitness[a] = 0;
+		}
+		for (int a = 0; a < N; a++)
 		{
 			for (int b = 0; b < length_word; b++)
 			{
@@ -80,10 +78,17 @@ int main()
 					{
 						fitness[a]++;
 					}
-				}	
+				}
+			}
+			if (fitness[a] > nFitness)
+			{
+				for (int c = 0; c < length_word; c++)
+				{
+					word_correct[a][c] = population[a][c];
+				}
 			}
 		}
-		char word_correct2[N][N] = { 0 };
+
 		for (int a = 0, c = 0; a < N; a++)
 		{
 			for (int b = 0, d = 0; b < length_word; b++)
@@ -97,57 +102,45 @@ int main()
 						d = 0;
 						c += 1;
 					}
-				}
-			}
-			trovato(population, length_word, word_to_find, c, start);
-		}
-
-		for (int a = 0; a < N; a++)
-		{
-			if (fitness[a] >= 1)
-			{
-				for (int b = 0; b < length_word; b++)
-				{
-					word_correct[a][b] = population[a][b];
-					for (int c = 0; c < length_word; c++)
+					if (fitness[a] > nFitness)
 					{
-						if (word_correct[a][b] == word_to_find[c])
-						{
-							fitness2[a]++;
-							somma += 1;
-						}	
+						somma += 1;
 					}
 				}
 			}
+			trovato(word_correct2, length_word, word_to_find, c);
+			if (finito == 1) { system("pause"); return 0; }
 		}
-		/*ruota della fortuna che ha N elementi ogniuno con un proprio valore, e ogni elemento ha la sua probabilità con la sua percentuale di essere preso , e la percentuale aumenta più è grande il numero al suo interno
+		somma /= length_word;
 
-		posso aggiungere più elementi in base al numero in proporzione al length
-		in base a quanti ne ho di 1 ci faccio una certa proporzione , in base a quanti ne ho di 0 faccio un'altra proporzione
-		*/
-
-
-
-		//selection
-		/*
-		kill the one with 0 fitness
-		pick 2 parents or 3 or more , but better 2
-		make crossover and mutation
-		crossover : you can mix half and half , or 4 member of one and 2 take randomly
-		mutation : after the crossover if i insert the 1% mutation this mean that i have
-		1% of probability to change a letter in a word with a new one
-		*/
+		//CROSSOVER
 		int numero_random = 0;
+		int mutation = 0;
 		for (int a = 0; a < N; a++)
 		{
+			//primo metodo
 			numero_random = rand() % 2;
+			mutation = 0;
 			if (numero_random == 0)
 			{
 				for (int b = 0; b < length_word; b++)
 				{
-					if (b <= (length_word / 2))
+					//MUTATION
+					mutation = rand() % 101;
+					if (mutation <= Mutation)
+					{
+						population[a][b] = (rand() % 58) + 65;
+						if (!(isalpha(population[a][b])))
+						{
+							b--;
+							continue;
+						}
+						continue;
+					}
+					if (b <= (length_word / 2) && a < somma)
 					{
 						population[a][b] = word_correct2[a][b];
+						continue;
 					}
 					population[a][b] = (rand() % 58) + 65;
 					if (!(isalpha(population[a][b])))
@@ -161,9 +154,21 @@ int main()
 			{
 				for (int b = 0; b < length_word; b++)
 				{
-					if (b >(length_word / 2))
+					mutation = rand() % 101;
+					if (mutation <= Mutation)
+					{
+						population[a][b] = (rand() % 58) + 65;
+						if (!(isalpha(population[a][b])))
+						{
+							b--;
+							continue;
+						}
+						continue;
+					}
+					if (b > (length_word / 2) && a < somma)
 					{
 						population[a][b] = word_correct2[a][b];
+						continue;
 					}
 					population[a][b] = (rand() % 58) + 65;
 					if (!(isalpha(population[a][b])))
@@ -173,14 +178,60 @@ int main()
 					}
 				}
 			}
-			trovato(population, length_word, word_to_find, a, start);
+			//secondo metodo
+			/*numero_random = rand() % length_word;
+			mutation = 0;
+			for (int b = 0; b < length_word; b++)
+			{	
+				if (a < somma)
+				{
+					if (b <= numero_random)
+					{
+						population[a][b] = word_correct2[a][b];
+						continue;
+					}
+					if (b > numero_random)
+					{
+						if (a == somma - 1)
+						{
+							population[a][b] = word_correct2[a - 1][b];
+							continue;
+						}
+						population[a][b] = word_correct2[a+1][b];
+						continue;
+					}
+				}
+				if (a >= somma)
+				{
+					//MUTATION
+					mutation = rand() % 100;
+					if (mutation <= Mutation)
+					{
+						population[a][b] = (rand() % 58) + 65;
+					if (!(isalpha(population[a][b])))
+					{
+						b--;
+						continue;
+					}
+					continue;
+					}
+					population[a][b] = (rand() % 58) + 65;
+					if (!(isalpha(population[a][b])))
+					{
+						b--;
+						continue;
+					}
+				}	
+			}*/
+			trovato(population, length_word, word_to_find, a);
+			if (finito == 1) { system("pause"); return 0; }
 		}
+		numero_random = 0;			
 	}
-	system("pause");
 	return 0;
 }
 
-int trovato(char population[N][N], int length_word, char word_to_find[Max_length], int a, clock_t start)
+int trovato(char population[N][N], int length_word, char word_to_find[Max_length], int a)
 {
 	for (int x = 0; x < length_word; x++)
 	{
@@ -190,16 +241,16 @@ int trovato(char population[N][N], int length_word, char word_to_find[Max_length
 		}
 		if (tentativi == length_word)
 		{
+			cout << "\n\tWORD FIND:   ";
 			for (int x = 0; x < length_word; x++)
 			{
 				cout << population[a][x] << " ";
 			}
-			cout << "\n\n\n\tWORD FIND";
 			clock_t end;
 			end = clock();
-			cout << "\n\n\tTIME: " << ((double)(end - start)) / CLOCKS_PER_SEC;
-			system("pause");
-			return 0;
+			cout << "\n\n\tTime: " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n";
+			finito = 1;
+			return finito;
 		}
 	}
 	tentativi = 0;
