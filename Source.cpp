@@ -8,9 +8,9 @@
 
 using namespace std;
 
-#define N 100
+#define N 20
 #define Max_length 20
-#define Mutation 10
+#define Mutation 1
 #define nFitness 0
 
 int tentativi = 0;
