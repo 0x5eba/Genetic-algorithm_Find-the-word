@@ -2,40 +2,37 @@
 #include <ctime>
 #include <stdlib.h>
 
-using namespace std;
+//"N" is the total population
+//"N" must be over a number a few up "M" , otherwise it will uselessly take more time 
+#define N 50
+//"M" is the length of "Word"
+#define M 30
+//"Word" accept only the alphabetic character ( uppercase and lowercase ), the space and nothing else
+#define Word "MayBe SoMEThiNg MoRe DIffiCUlT"
+//"Mutation" maximum is 100 ( raccomand keep it down of the 10 ) , is in percentage
+#define Mutation 5
 
-#define N 20
-#define Word "Tests"
-#define Mutation 1
-#define minFitness 0
-
-int tentativi = 0;
-int finito = 0;
+int word_correct = 0;
+int completed = 0;
 clock_t start;
-int trovato(char population[N][N], int *length_word, int *a);
+int Find(char population[N][M], int *a);
 
 int main()
 {
 	start = clock();
 	srand(time(NULL));
-	char population[N][N] = { 0 };
+	char population[N][M] = { 0 };
 	int fitness[N] = { 0 };
-	char word_correct[N][N] = { 0 };
 	int sum = 0;
-	int copy_a = 0;
 
-	cout << "\n\tWord to find: " << Word << "\n";
-	cout << "\npopulation: " << N << "\n";
-	cout << "mutation: " << Mutation << "%\n";
-	cout << "minimum fitness: " << minFitness << "\n\n";
-	//cout << "\n(More letters , more waiting)\n\n";
-	int length_word = strlen(Word);
+	std::cout << "\n\tWord to find: " << Word << "\n";
+	std::cout << "\npopulation: " << N << "\n";
+	std::cout << "mutation: " << Mutation << "%\n";
 	
 	for (int a = 0; a < N; a++)
 	{
-		for (int b = 0; b < length_word; b++)
+		for (int b = 0; b < M; b++)
 		{	
-			//posso aggiungere di mettere anche lo spazio tra gli elementi random
 			population[a][b] = (rand() % 58) + 65;
 			if (!isalpha(population[a][b]))
 			{
@@ -43,183 +40,121 @@ int main()
 				continue;
 			}
 		}
-		trovato(population, &length_word, &a);
-		if (finito == 1) { system("pause"); return 0; }
 	}
 
-	while (finito == 0)
+	while (true)
 	{
-		sum = 0;
 		//FITNESS
-		for (int a = 0; a < N; a++) //azzero per ogni ciclo
+		for (int a = 0; a < N; a++)
 		{
 			fitness[a] = 0;
 		}
+
 		for (int a = 0; a < N; a++)
 		{
-			for (int b = 0; b < length_word; b++)
+			for (int b = 0; b < M; b++)
 			{
-				for (int c = 0; c < length_word; c++)
-				{
-					//potrei sistemare se ci sono più lettere uguali ( doppioni o più ) che hanno la parola in comune con word_to_find
-					if (population[a][c] == Word[b])//aumento il fitness di una parola ( casuale ) in base a quante parole ha in comune con "Word"
-						fitness[a]++;
-				}
+				if (population[a][b] == Word[b])
+					fitness[a]++;
 			}
-			//SELECTION
-			if (fitness[a] > minFitness)//tengo solo le parole con un certo fitness ( in media maggiore di 0 )
-			{
-				copy_a++;
-				for (int c = 0; c < length_word; c++)//copio ed elimino se ci sono spazi vuoti in più
-				{
-					word_correct[copy_a][c] = population[a][c];
-				}
-				sum += 1;//tengo conto di quante parole ci sono sono in tutto corrette
-			}
-			trovato(word_correct, &length_word, &copy_a);
-			if (finito == 1) { system("pause"); return 0; }
 		}
-		copy_a = 0;
+
+		//SORTING
+		int max_fitness = fitness[0];
+		for (int a = 0; a < N; a++)
+		{
+			for (int b = a; b < N; b++)
+			{
+				if (max_fitness < fitness[b])
+				{
+					max_fitness = b;
+				}
+			}
+			if (max_fitness >= 1)
+			{
+				for (int c = 0; c < M; c++)
+				{
+					int temp = population[max_fitness][c];
+					population[max_fitness][c] = population[a][c];
+					population[a][c] = temp;
+				}
+				int temp = fitness[a];
+				fitness[a] = fitness[max_fitness];
+				fitness[max_fitness] = temp;
+				sum++;
+			}
+			max_fitness = 0;
+		}
+
+		if (sum > N / 2)
+			sum = N / 2;
 
 		//CROSSOVER
-		int random_number = 0;
-		int random_mutation = 0;
-		for (int a = 0; a < N; a++)
+		for (int a = 0; a < sum; a++)
 		{
-			//primo metodo
-			random_number = rand() % 2;
-			random_mutation = 0;
-			if (random_number == 0)//prendo in considerazione ( delle parole corrette ) le lettere inferirori o uguali a "b" , e le metto nella nuova popolazione , le restanti sono casuali
+			int random_mating = rand() % 101;
+			if (random_mating >= 50)
 			{
-				for (int b = 0; b < length_word; b++)
+				int random_mate = rand() % sum;
+				for (int b = 0; b < M; b++)
 				{
-					//random_mutation
-					random_mutation = rand() % 101;
-					if (random_mutation <= Mutation)//se il valore random tra 0 e 100 è minore o uguale alla percentuale di mutazione , che abbiamo scelto all'inizio , genera un valore casuale
-					{
-						population[a][b] = (rand() % 58) + 65;
-						if (!(isalpha(population[a][b])))
-						{
-							b--;
-							continue;
-						}
-						continue;
-					}
-					if (b <= (length_word / 2) && a < sum)
-					{
-						population[a][b] = word_correct[a][b];
-						continue;
-					}
-					population[a][b] = (rand() % 58) + 65;
-					if (!(isalpha(population[a][b])))
-					{
-						b--;
-						continue;
-					}
-				}
-			}
-			if (random_number == 1)//prendo in considerazione ( delle parole corrette ) le lettere maggiori a "b" , e le metto nella nuova popolazione , le restanti sono casuali
-			{
-				for (int b = 0; b < length_word; b++)
-				{
-					random_mutation = rand() % 101;
+					//MUTATION
+					int random_mutation = rand() % 101;
 					if (random_mutation <= Mutation)
 					{
+						if (random_mutation < 2)//per lo spazio
+						{
+							population[a][b] = 32;
+							continue;
+						}
 						population[a][b] = (rand() % 58) + 65;
-						if (!(isalpha(population[a][b])))
+						if (population[a][b] > 90 || population[a][b] < 97)
 						{
 							b--;
 							continue;
 						}
 						continue;
 					}
-					if (b > (length_word / 2) && a < sum)
+
+					int random = rand() % 101;
+					if (random < 50)
 					{
-						population[a][b] = word_correct[a][b];
-						continue;
+						population[sum+a][b] = population[a][b];
 					}
-					population[a][b] = (rand() % 58) + 65;
-					if (!(isalpha(population[a][b])))
-					{
-						b--;
-						continue;
+					else {
+						population[sum+a][b] = population[random_mate][b];
 					}
 				}
 			}
-			//secondo metodo
-			/*random_number = rand() % length_word;
-			random_mutation = 0;
-			for (int b = 0; b < length_word; b++)
-			{
-			if (a < sum)
-			{
-			if (b <= random_number)
-			{
-			population[a][b] = word_correct[a][b];
-			continue;
-			}
-			if (b > random_number)
-			{
-			if (a == sum - 1)
-			{
-			population[a][b] = word_correct[a - 1][b];
-			continue;
-			}
-			population[a][b] = word_correct[a+1][b];
-			continue;
-			}
-			}
-			if (a >= sum)
-			{
-			//random_mutation
-			random_mutation = rand() % 100;
-			if (random_mutation <= random_mutation)
-			{
-			population[a][b] = (rand() % 58) + 65;
-			if (!(isalpha(population[a][b])))
-			{
-			b--;
-			continue;
-			}
-			continue;
-			}
-			population[a][b] = (rand() % 58) + 65;
-			if (!(isalpha(population[a][b])))
-			{
-			b--;
-			continue;
-			}
-			}
-			}*/
-			trovato(population, &length_word, &a);
-			if (finito == 1) { system("pause"); return 0; }
+			Find(population, &a);
+			if (completed == 1) { system("pause"); return 0; }
 		}
-		random_number = 0;
+		sum = 0;
 	}
 	return 0;
 }
 
-int trovato(char population[N][N], int *length_word, int *a)
+int Find(char population[N][M], int *a)
 {
-	for (int x = 0; x < *length_word; x++)
+	for (int x = 0; x < M; x++)
 	{
-		if (population[*a][x] == Word[x])//controllo se tutte le lettere in sequenza sono uguali alla parola da trovare
+		if (population[*a][x] == Word[x])
 		{
-			tentativi++;
+			word_correct++;
 		}
-		if (tentativi == *length_word)
+		if (word_correct == M)
 		{
-			cout << "\tWORD FIND:   ";
-			for (int x = 0; x < *length_word; x++)//stampo le parole trovate per vedere se effettivamente è corretto
+			std::cout << "\n\n\tWORD FIND:   ";
+			for (int x = 0; x < M; x++)
 			{
-				cout << population[*a][x] << " ";
+				std::cout << population[*a][x] << " ";
 			}
 			clock_t end;
 			end = clock();
-			cout << "\n\n\tTime: " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n\n";
-			finito = 1;
-			return finito;
+			std::cout << "\n\n\t\tTime: " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n\n";
+			completed = 1;
+			return completed;
 		}
 	}
-	tentativi = 0;
+	word_correct = 0;
 }
