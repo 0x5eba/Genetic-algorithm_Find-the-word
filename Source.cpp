@@ -185,6 +185,7 @@ int Find(char population[N][M], int a)
 			std::cout << "\n\n\t\tTime: " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n\n";
 			completed = 1;
 			return completed;
+			break;
 		}
 	}
 	word_correct = 0;
