@@ -14,10 +14,12 @@
 
 int word_correct = 0;
 int completed = 0;
+int sum = 0;
 clock_t start;
 int Random_population(char population[N][M]);
 int Fitness(char population[N][M], int fitness[N]);
-int Crossover(char population[N][M], int sum);
+int Sorting(char population[N][M], int fitness[N]);
+int Crossover(char population[N][M]);
 int Find(char population[N][M], int a);
 
 int main()
@@ -26,50 +28,24 @@ int main()
 	srand(time(NULL));
 	char population[N][M] = { 0 };
 	int fitness[N] = { 0 };
-	int sum = 0;
 
 	std::cout << "\n\tWord to find: " << Word << "\n";
 	std::cout << "\npopulation: " << N << "\n";
 	std::cout << "Prob_mutation: " << Prob_mutation << "%\n";
 	
 	Random_population(population);
+
 	while (true)
 	{
 		//FITNESS
 		Fitness(population, fitness);
 		
 		//SORTING
-		int max_fitness = fitness[0];
-		for (int a = 0; a < N; a++)
-		{
-			for (int b = a; b < N; b++)
-			{
-				if (max_fitness < fitness[b])
-				{
-					max_fitness = b;
-				}
-			}
-			if (max_fitness >= 1)
-			{
-				for (int c = 0; c < M; c++)
-				{
-					int temp = population[max_fitness][c];
-					population[max_fitness][c] = population[a][c];
-					population[a][c] = temp;
-				}
-				int temp = fitness[a];
-				fitness[a] = fitness[max_fitness];
-				fitness[max_fitness] = temp;
-				sum++;
-			}
-			max_fitness = 0;
-		}
+		Sorting(population, fitness);		
 
-		if (sum > N / 2)
-			sum = N / 2;
-		
 		//CROSSOVER
-		Crossover(population, sum);
+		Crossover(population);
+
 		if (completed == 1) { system("pause"); return 0; }
 		sum = 0;
 	}
@@ -109,8 +85,39 @@ int Fitness(char population[N][M], int fitness[N])
 	}
 	return fitness[N];
 }
+int Sorting(char population[N][M], int fitness[N])
+{
+	int max_fitness = fitness[0];
+	for (int a = 0; a < N; a++)
+	{
+		for (int b = a; b < N; b++)
+		{
+			if (max_fitness < fitness[b])
+			{
+				max_fitness = b;
+			}
+		}
+		if (max_fitness >= 1)
+		{
+			for (int c = 0; c < M; c++)
+			{
+				int temp = population[max_fitness][c];
+				population[max_fitness][c] = population[a][c];
+				population[a][c] = temp;
+			}
+			int temp = fitness[a];
+			fitness[a] = fitness[max_fitness];
+			fitness[max_fitness] = temp;
+			sum++;
+		}
+		max_fitness = 0;
+	}
+	if (sum > N / 2)
+		sum = N / 2;
+	return population[N][M];
+}
 
-int Crossover(char population[N][M], int sum)
+int Crossover(char population[N][M])
 {
 	for (int a = 0; a < sum; a++)
 	{
