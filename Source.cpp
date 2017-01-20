@@ -67,6 +67,7 @@ int main()
 
 		if (sum > N / 2)
 			sum = N / 2;
+		
 		//CROSSOVER
 		Crossover(population, sum);
 		if (completed == 1) { system("pause"); return 0; }
