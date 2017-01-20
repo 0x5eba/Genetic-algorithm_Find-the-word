@@ -15,35 +15,36 @@
 int word_correct = 0;
 int completed = 0;
 int sum = 0;
+
 clock_t start;
+
 int Random_population(char population[N][M]);
 int Fitness(char population[N][M], int fitness[N]);
 int Sorting(char population[N][M], int fitness[N]);
 int Crossover(char population[N][M]);
+int Mutation(char population[N][M], int a, int b, int random_Prob_mutation);
 int Find(char population[N][M], int a);
 
 int main()
 {
 	start = clock();
 	srand(time(NULL));
+
 	char population[N][M] = { 0 };
 	int fitness[N] = { 0 };
 
 	std::cout << "\n\tWord to find: " << Word << "\n";
-	std::cout << "\npopulation: " << N << "\n";
-	std::cout << "Prob_mutation: " << Prob_mutation << "%\n";
+	std::cout << "\nPopulation: " << N << "\n";
+	std::cout << "Mutation: " << Prob_mutation << "%\n";
 	
 	Random_population(population);
 
 	while (true)
 	{
-		//FITNESS
 		Fitness(population, fitness);
-		
-		//SORTING
-		Sorting(population, fitness);		
 
-		//CROSSOVER
+		Sorting(population, fitness);
+
 		Crossover(population);
 
 		if (completed == 1) { system("pause"); return 0; }
@@ -51,18 +52,17 @@ int main()
 	}
 	return 0;
 }
+
+
 int Random_population(char population[N][M])
 {
 	for (int a = 0; a < N; a++)
 	{
 		for (int b = 0; b < M; b++)
 		{
-			population[a][b] = (rand() % 58) + 65;
-			if (!isalpha(population[a][b]))
-			{
-				b--;
-				continue;
-			}
+			do {
+				population[a][b] = (rand() % 58) + 65;
+			} while (population[a][b] > 90 && population[a][b] < 97);
 		}
 	}
 	return population[N][M];
@@ -85,6 +85,7 @@ int Fitness(char population[N][M], int fitness[N])
 	}
 	return fitness[N];
 }
+
 int Sorting(char population[N][M], int fitness[N])
 {
 	int max_fitness = fitness[0];
@@ -131,17 +132,7 @@ int Crossover(char population[N][M])
 				int random_Prob_mutation = rand() % 101;
 				if (random_Prob_mutation <= Prob_mutation)
 				{
-					if (random_Prob_mutation < 2)//per lo spazio
-					{
-						population[a][b] = 32;
-						continue;
-					}
-					population[a][b] = (rand() % 58) + 65;
-					if (population[a][b] > 90 || population[a][b] < 97)
-					{
-						b--;
-						continue;
-					}
+					Mutation(population, a, b, random_Prob_mutation);
 					continue;
 				}
 
@@ -158,6 +149,20 @@ int Crossover(char population[N][M])
 		Find(population, a);
 	}
 	return population[N][M];
+}
+
+int Mutation(char population[N][M], int a, int b, int random_Prob_mutation)
+{
+	if (random_Prob_mutation < 2)//per lo spazio
+	{
+		population[a][b] = 32;
+		return population[a][b];
+	}
+	do {
+		population[a][b] = (rand() % 58) + 65;
+	} while (population[a][b] > 90 && population[a][b] < 97);
+
+	return population[a][b];
 }
 
 int Find(char population[N][M], int a)
