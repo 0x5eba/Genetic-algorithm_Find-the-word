@@ -4,11 +4,11 @@
 
 //"N" is the total population
 //"N" must be over a number a few up "M" , otherwise it will uselessly take more time 
-#define N 60
+#define N 40
 //"M" is the length of "Word"
-#define M 30
-//"Word" accept only the alphabetic character ( uppercase and lowercase ), the space and nothing else
-#define Word "MayBe SoMEThiNg MoRe DIffiCUlT"
+#define M 19
+//"Word" accept the alphabetic character ( uppercase and lowercase ), the space and the numbers
+#define Word "Jus7 M0re D1ffIcul7"
 //"Prob_mutation" maximum is 100 ( raccomand keep it down of the 10 ) , is in percentage
 #define Prob_mutation 5
 
@@ -18,11 +18,11 @@ int sum = 0;
 
 clock_t start;
 
+char List[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 abcdefghijklmnopqrstuvwxyz";
 int Random_population(char population[N][M]);
 int Fitness(char population[N][M], int fitness[N]);
 int Sorting(char population[N][M], int fitness[N]);
 int Crossover(char population[N][M]);
-int Mutation(char population[N][M], int a, int b, int random_Prob_mutation);
 int Find(char population[N][M], int a);
 
 int main()
@@ -60,9 +60,8 @@ int Random_population(char population[N][M])
 	{
 		for (int b = 0; b < M; b++)
 		{
-			do {
-				population[a][b] = (rand() % 58) + 65;
-			} while (population[a][b] > 90 && population[a][b] < 97);
+			int random = rand() % 64;
+			population[a][b] = List[random];
 		}
 	}
 	return population[N][M];
@@ -132,7 +131,8 @@ int Crossover(char population[N][M])
 				int random_Prob_mutation = rand() % 101;
 				if (random_Prob_mutation <= Prob_mutation)
 				{
-					Mutation(population, a, b, random_Prob_mutation);
+					int random = rand() % 64;
+					population[a][b] = List[random];
 					continue;
 				}
 
@@ -149,20 +149,6 @@ int Crossover(char population[N][M])
 		Find(population, a);
 	}
 	return population[N][M];
-}
-
-int Mutation(char population[N][M], int a, int b, int random_Prob_mutation)
-{
-	if (random_Prob_mutation < 2)//per lo spazio
-	{
-		population[a][b] = 32;
-		return population[a][b];
-	}
-	do {
-		population[a][b] = (rand() % 58) + 65;
-	} while (population[a][b] > 90 && population[a][b] < 97);
-
-	return population[a][b];
 }
 
 int Find(char population[N][M], int a)
