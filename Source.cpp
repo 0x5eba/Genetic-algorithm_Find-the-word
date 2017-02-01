@@ -88,29 +88,32 @@ int Fitness(char population[N][M], int fitness[N])
 int Sorting(char population[N][M], int fitness[N])
 {
 	int max_fitness = fitness[0];
+	int position_max_fitness = 0;
 	for (int a = 0; a < N; a++)
 	{
 		for (int b = a; b < N; b++)
 		{
 			if (max_fitness < fitness[b])
 			{
-				max_fitness = b;
+				max_fitness = fitness[b];
+				position_max_fitness = b;
 			}
 		}
-		if (max_fitness >= 1)
+		if (max_fitness >= 2)
 		{
 			for (int c = 0; c < M; c++)
 			{
-				int temp = population[max_fitness][c];
-				population[max_fitness][c] = population[a][c];
+				int temp = population[position_max_fitness][c];
+				population[position_max_fitness][c] = population[a][c];
 				population[a][c] = temp;
 			}
 			int temp = fitness[a];
-			fitness[a] = fitness[max_fitness];
-			fitness[max_fitness] = temp;
+			fitness[a] = fitness[position_max_fitness];
+			fitness[position_max_fitness] = temp;
 			sum++;
 		}
 		max_fitness = 0;
+		position_max_fitness = 0;
 	}
 	if (sum > N / 2)
 		sum = N / 2;
