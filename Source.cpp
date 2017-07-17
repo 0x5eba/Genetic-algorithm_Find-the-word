@@ -4,11 +4,11 @@
 
 //"N" is the total population
 //"N" must be over a number a few up "M" , otherwise it will uselessly take more time 
-#define N 40
+#define N 60
 //"M" is the length of "Word"
-#define M 19
-//"Word" accept the alphabetic character ( uppercase and lowercase ), the space and the numbers
-#define Word "Jus7 M0re D1ffIcul7"
+#define M 30
+//"Word" accept only the alphabetic character ( uppercase and lowercase ), the space and nothing else
+#define Word "MayBe SoMEThiNg MoRe DIffiCUlT"
 //"Prob_mutation" maximum is 100 ( raccomand keep it down of the 10 ) , is in percentage
 #define Prob_mutation 5
 
@@ -18,11 +18,11 @@ int sum = 0;
 
 clock_t start;
 
-char List[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 abcdefghijklmnopqrstuvwxyz";
 int Random_population(char population[N][M]);
 int Fitness(char population[N][M], int fitness[N]);
 int Sorting(char population[N][M], int fitness[N]);
 int Crossover(char population[N][M]);
+int Mutation(char population[N][M], int a, int b, int random_Prob_mutation);
 int Find(char population[N][M], int a);
 
 int main()
@@ -36,7 +36,7 @@ int main()
 	std::cout << "\n\tWord to find: " << Word << "\n";
 	std::cout << "\nPopulation: " << N << "\n";
 	std::cout << "Mutation: " << Prob_mutation << "%\n";
-	
+
 	Random_population(population);
 
 	while (true)
@@ -60,8 +60,9 @@ int Random_population(char population[N][M])
 	{
 		for (int b = 0; b < M; b++)
 		{
-			int random = rand() % 64;
-			population[a][b] = List[random];
+			do {
+				population[a][b] = (rand() % 58) + 65;
+			} while (population[a][b] > 90 && population[a][b] < 97);
 		}
 	}
 	return population[N][M];
@@ -88,32 +89,29 @@ int Fitness(char population[N][M], int fitness[N])
 int Sorting(char population[N][M], int fitness[N])
 {
 	int max_fitness = fitness[0];
-	int position_max_fitness = 0;
 	for (int a = 0; a < N; a++)
 	{
 		for (int b = a; b < N; b++)
 		{
 			if (max_fitness < fitness[b])
 			{
-				max_fitness = fitness[b];
-				position_max_fitness = b;
+				max_fitness = b;
 			}
 		}
-		if (max_fitness >= 2)
+		if (max_fitness >= 1)
 		{
 			for (int c = 0; c < M; c++)
 			{
-				int temp = population[position_max_fitness][c];
-				population[position_max_fitness][c] = population[a][c];
+				int temp = population[max_fitness][c];
+				population[max_fitness][c] = population[a][c];
 				population[a][c] = temp;
 			}
 			int temp = fitness[a];
-			fitness[a] = fitness[position_max_fitness];
-			fitness[position_max_fitness] = temp;
+			fitness[a] = fitness[max_fitness];
+			fitness[max_fitness] = temp;
 			sum++;
 		}
 		max_fitness = 0;
-		position_max_fitness = 0;
 	}
 	if (sum > N / 2)
 		sum = N / 2;
@@ -134,8 +132,7 @@ int Crossover(char population[N][M])
 				int random_Prob_mutation = rand() % 101;
 				if (random_Prob_mutation <= Prob_mutation)
 				{
-					int random = rand() % 64;
-					population[a][b] = List[random];
+					Mutation(population, a, b, random_Prob_mutation);
 					continue;
 				}
 
@@ -152,6 +149,20 @@ int Crossover(char population[N][M])
 		Find(population, a);
 	}
 	return population[N][M];
+}
+
+int Mutation(char population[N][M], int a, int b, int random_Prob_mutation)
+{
+	if (random_Prob_mutation < 2)//per lo spazio
+	{
+		population[a][b] = 32;
+		return population[a][b];
+	}
+	do {
+		population[a][b] = (rand() % 58) + 65;
+	} while (population[a][b] > 90 && population[a][b] < 97);
+
+	return population[a][b];
 }
 
 int Find(char population[N][M], int a)
