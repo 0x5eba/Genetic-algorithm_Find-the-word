@@ -1,107 +1,96 @@
 #include <iostream>
 #include <ctime>
 #include <stdlib.h>
+#include <vector>
+
+using namespace std;
 
 //"N" is the total population
 //"N" must be over a number a few up "M" , otherwise it will uselessly take more time 
-#define N 60
-//"M" is the length of "Word"
-#define M 30
-//"Word" accept only the alphabetic character ( uppercase and lowercase ), the space and nothing else
-#define Word "MayBe SoMEThiNg MoRe DIffiCUlT"
+int M = 0;
+int N = 0;
 //"Prob_mutation" maximum is 100 ( raccomand keep it down of the 10 ) , is in percentage
-#define Prob_mutation 5
+const int Prob_mutation = 5;
 
+string phrase = "";
 int word_correct = 0;
 int completed = 0;
 int sum = 0;
-
 clock_t start;
 
-int Random_population(char population[N][M]);
-int Fitness(char population[N][M], int fitness[N]);
-int Sorting(char population[N][M], int fitness[N]);
-int Crossover(char population[N][M]);
-int Mutation(char population[N][M], int a, int b, int random_Prob_mutation);
-int Find(char population[N][M], int a);
+void Random_population(vector<vector<char>> &population);
+void Fitness(vector<vector<char>> &population, vector<int> &fitness);
+void Sorting(vector<vector<char>> &population, vector<int> &fitness);
+void Crossover(vector<vector<char>> &population);
+void Mutation(vector<vector<char>> &population, int a, int b);
+void Find(vector<vector<char>> &population, int a);
 
-int main()
+int main() 
 {
 	start = clock();
 	srand(time(NULL));
 
-	char population[N][M] = { 0 };
-	int fitness[N] = { 0 };
+    cout << "Insert the phrase to generate: ";
+    getline(cin, phrase);
+    M = phrase.length();
+    N = M + 30 + M*0.35;
 
-	std::cout << "\n\tWord to find: " << Word << "\n";
-	std::cout << "\nPopulation: " << N << "\n";
-	std::cout << "Mutation: " << Prob_mutation << "%\n";
+	vector<vector<char>> population(N, vector<char>(M));
+    vector<int> fitness(N, 0);
+
+	cout << "\nPopulation: " << N << "\n";
+	cout << "Mutation: " << Prob_mutation << "%\n";
 
 	Random_population(population);
 
-	while (true)
-	{
+	while (true){
 		Fitness(population, fitness);
 
 		Sorting(population, fitness);
 
 		Crossover(population);
 
-		if (completed == 1) { system("pause"); return 0; }
+		if (completed == 1)
+            return 0;
 		sum = 0;
 	}
 	return 0;
 }
 
 
-int Random_population(char population[N][M])
+void Random_population(vector<vector<char>> &population)
 {
-	for (int a = 0; a < N; a++)
-	{
-		for (int b = 0; b < M; b++)
-		{
-			do {
-				population[a][b] = (rand() % 58) + 65;
-			} while (population[a][b] > 90 && population[a][b] < 97);
+	for (int a = 0; a < N; a++){
+		for (int b = 0; b < M; b++){
+			Mutation(population, a, b);
 		}
 	}
-	return population[N][M];
 }
 
-int Fitness(char population[N][M], int fitness[N])
+void Fitness(vector<vector<char>> &population, vector<int> &fitness)
 {
 	for (int a = 0; a < N; a++)
-	{
 		fitness[a] = 0;
-	}
 
-	for (int a = 0; a < N; a++)
-	{
-		for (int b = 0; b < M; b++)
-		{
-			if (population[a][b] == Word[b])
+	for (int a = 0; a < N; a++){
+		for (int b = 0; b < M; b++){
+			if (population[a][b] == phrase[b])
 				fitness[a]++;
 		}
 	}
-	return fitness[N];
 }
 
-int Sorting(char population[N][M], int fitness[N])
+void Sorting(vector<vector<char>> &population, vector<int> &fitness)
 {
 	int max_fitness = fitness[0];
-	for (int a = 0; a < N; a++)
-	{
-		for (int b = a; b < N; b++)
-		{
+	for (int a = 0; a < N; a++){
+		for (int b = a; b < N; b++){
 			if (max_fitness < fitness[b])
-			{
 				max_fitness = b;
-			}
 		}
-		if (max_fitness >= 1)
+		if (max_fitness > 0)
 		{
-			for (int c = 0; c < M; c++)
-			{
+			for (int c = 0; c < M; c++){
 				int temp = population[max_fitness][c];
 				population[max_fitness][c] = population[a][c];
 				population[a][c] = temp;
@@ -115,30 +104,26 @@ int Sorting(char population[N][M], int fitness[N])
 	}
 	if (sum > N / 2)
 		sum = N / 2;
-	return population[N][M];
 }
 
-int Crossover(char population[N][M])
+void Crossover(vector<vector<char>> &population)
 {
-	for (int a = 0; a < sum; a++)
-	{
+	for (int a = 0; a < sum; a++){
 		int random_mating = rand() % 101;
-		if (random_mating >= 50)
-		{
-			int random_mate = rand() % sum;
+		if (random_mating >= 50){
+			
+            int random_mate = rand() % sum;
 			for (int b = 0; b < M; b++)
 			{
 				//MUTATION
 				int random_Prob_mutation = rand() % 101;
-				if (random_Prob_mutation <= Prob_mutation)
-				{
-					Mutation(population, a, b, random_Prob_mutation);
+				if (random_Prob_mutation <= Prob_mutation){
+					Mutation(population, a, b);
 					continue;
 				}
 
 				int random = rand() % 101;
-				if (random < 50)
-				{
+				if (random < 50){
 					population[sum + a][b] = population[a][b];
 				}
 				else {
@@ -147,44 +132,33 @@ int Crossover(char population[N][M])
 			}
 		}
 		Find(population, a);
+        if (completed == 1)
+            break;
 	}
-	return population[N][M];
 }
 
-int Mutation(char population[N][M], int a, int b, int random_Prob_mutation)
+void Mutation(vector<vector<char>> &population, int a, int b)
 {
-	if (random_Prob_mutation < 2)//per lo spazio
-	{
-		population[a][b] = 32;
-		return population[a][b];
-	}
-	do {
-		population[a][b] = (rand() % 58) + 65;
-	} while (population[a][b] > 90 && population[a][b] < 97);
-
-	return population[a][b];
+    population[a][b] = rand() % 127;
+	// do {
+	// 	population[a][b] = (rand() % 58) + 65;
+	// } while (population[a][b] > 90 && population[a][b] < 97);
 }
 
-int Find(char population[N][M], int a)
+void Find(vector<vector<char>> &population, int a)
 {
-	for (int x = 0; x < M; x++)
-	{
-		if (population[a][x] == Word[x])
-		{
+    for (int x = 0; x < M; x++){
+		if (population[a][x] == phrase[x])
 			word_correct++;
-		}
-		if (word_correct == M)
-		{
-			std::cout << "\n\n\tWORD FIND:   ";
-			for (int x = 0; x < M; x++)
-			{
-				std::cout << population[a][x] << " ";
+		if (word_correct == M) {
+			cout << "\n\tPhrase find: ";
+			for (int x = 0; x < M; x++){
+				cout << population[a][x];
 			}
 			clock_t end;
 			end = clock();
-			std::cout << "\n\n\t\tTime: " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n\n";
+			cout << "\n\nIn " << ((double)(end - start)) / CLOCKS_PER_SEC << " seconds\n\n";
 			completed = 1;
-			return completed;
 			break;
 		}
 	}
